@@ -12,7 +12,6 @@ const schema = makeExecutableSchema({
 });
 
 const app = express();
-
 app.use('/graphiql', graphiqlExpress({
     endpointURL: 'graphql'
 }));
