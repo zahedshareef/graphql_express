@@ -8,7 +8,6 @@ export default (sequelize, DataTypes) => {
         User.hasMany(models.Board, {
             foreignKey: 'owner',
         });
-
         // 1 to many with suggestion
         User.hasMany(models.Suggestion, {
             foreignKey: 'creatorId',
