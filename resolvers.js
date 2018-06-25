@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import _ from 'lodash';
 import { PubSub } from 'graphql-subscriptions';
+import { requiresAdmin } from './permissions';
 
 export const pubSub = new PubSub();
 
@@ -66,9 +67,13 @@ export default {
   },
 
   Mutation: {
-    updateUser: (parent, { username, newUsername }, { models }) => models.User.update({ username: newUsername }, { where: { username } }),
+    updateUser: (parent, { username, newUsername }, { models }) => models.User.update(
+      { username: newUsername }, { where: { username } },
+    ),
     deleteUser: (parent, args, { models }) => models.User.destroy({ where: args }),
-    createBoard: (parent, args, { models }) => models.Board.create(args),
+    createBoard: requiresAdmin.createResolver(
+      (parent, args, { models }) => models.Board.create(args),
+    ),
     createSuggestion: (parent, args, { models }) => models.Suggestion.create(args),
     createUser: async (parent, args, { models }) => {
       const user = args;
@@ -95,7 +100,9 @@ export default {
         throw new Error('Incorrect password');
       }
 
-      return jwt.sign({ user: _.pick(user, ['id', 'username']) }, SECRET, { expiresIn: '1y' });
+      const token = jwt.sign({ user: _.pick(user, ['id', 'username', 'isAdmin']) }, SECRET, { expiresIn: '1y' });
+
+      return token;
     },
   },
 };

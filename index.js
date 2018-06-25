@@ -51,8 +51,8 @@ app.use('/graphql', bodyParser.json(), graphqlExpress(req => ({
 const server = createServer(app);
 
 models.sequelize.sync().then(() => server.listen(3000, () => {
-  new SubscriptionServer (
+  new SubscriptionServer(
     { execute, subscribe, schema },
-    { server, path: '/subscriptions' }
+    { server, path: '/subscriptions' },
   );
 }));
